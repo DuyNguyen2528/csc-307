@@ -1,5 +1,5 @@
 // backend.js
-import express from "express";
+import express, { response } from "express";
 
 
 
@@ -13,6 +13,44 @@ const findUserByName = (name) => {
       (user) => user["name"] === name
     );
   };
+const findUserByNameAndJob = (name, job) => {
+    return users["users_list"].filter(user => user["name"] === name && user["job"] === job);
+}
+
+  const addUser = (user) => {
+    users["users_list"].push(user);
+    return user;
+  };
+  
+  app.post("/users", (req, res) => {
+    const userToAdd = req.body;
+    addUser(userToAdd);
+    res.send();
+  });
+
+ const userFindIndex = (id) => users["users_list"].findIndex(user => user["id"] === id);
+
+  app.get("/users/find", (req, res) => {
+    let username = req.query["name"];
+    let userjob  = req.query["job"];
+    let result = findUserByNameAndJob(username, userjob);
+    //result = { users_list: result };
+    res.send(result);
+   
+  } );
+
+  app.delete("/users/:id", (req, res) => {
+    let userToDeleteID = req.params["id"]
+    let index = userFindIndex(userToDeleteID)
+    
+    if (index !== -1) {
+        users["users_list"].splice(index, 1); // Remove resource from the array
+        return res.status(204).send(); // No content
+    } else {
+        return res.status(404).json({ message: 'Resource not found' });
+    }
+  });
+
   const findUserById1 = (id) =>
   users["users_list"].find((user) => user["id"] === id);
 
