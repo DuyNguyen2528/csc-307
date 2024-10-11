@@ -34,17 +34,40 @@ function MyApp() {
     //--------------useEffect()------------------
     useEffect(() => {
         fetchUsers()
-            .then((res) => res.json())
+            .then((res) => {
+                if(res.status !== 201) {
+                    
+                    throw Error("error loading");
+                }
+                else {
+                    console.log(res.status);
+                    return res.json();
+                }
+            })
             .then((json) => setCharacters(json["users_list"]))
-            .catch((error) => { console.log(error); });
+            .catch((error) => { console.log("error loading"); });
       }, [] );
 
     //--------------removeOneCharacter(index)------------------
     function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-        return i !== index;
+        let id = characters.at(index).id;
+        //console.log(id);
+        const promise = fetch(`Http://localhost:8000/users/${id}`, {
+            method: "DELETE"
         });
-        setCharacters(updated);
+        promise.then((res) => {
+            if(res.status === 204) {
+                const updated = characters.filter((character, i) => {
+                    return i !== index;
+                });
+                setCharacters(updated);
+                console.log(res.status);
+            }
+            else if(res.status === 404) {
+                console.log("Resource not found");
+            }
+        })
+        
     }
 
     //--------------updateList(person)------------------
@@ -52,12 +75,27 @@ function MyApp() {
         //----old code---
         //setCharacters([...characters, person]);
         //---------------------
-
+        
         postUser(person)
-        .then(() => setCharacters([...characters, person]))
-        .catch((error) => {
-            console.log(error);
-        })
+        .then((res) => {
+        if(res.status !== 201) {
+            throw new Error("error adding");
+            
+        }
+        else {
+            console.log(res.status);
+            return res.json();
+        }
+        
+      })
+      .then((data) => {
+        setCharacters([...characters, data]);
+        
+        
+      })
+      .catch((error) => {
+        console.log(error);
+      })
     }
 
     //--------------return------------------
