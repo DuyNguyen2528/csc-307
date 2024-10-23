@@ -4,14 +4,13 @@ import userModel from "./user.js";
 mongoose.set("debug", true);
 
 mongoose
-  .connect("mongodb://localhost:27017/users", {
+  .connect("mongodb+srv://ngduy0806:csc307@cluster0.wvqcu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .catch((error) => console.log(error));
-export function fetchlist() {
-  return userModel.find();
-}
+  .catch((error) => console.log("cant connect to mongodb\nERROR say:\n" , error));
+
+
 function getUsers(name, job) {
   let promise;
   if (name === undefined && job === undefined) {
@@ -21,17 +20,22 @@ function getUsers(name, job) {
   } else if (job && !name) {
     promise = findUserByJob(job);
   }
+  else if (job && name) {
+    promise = findUserNameAndJob(name, job);
+  }
   return promise;
 }
 
+function findUserNameAndJob(name, job) {
+  return userModel.findOne({name: name , job: job});
+}
 function findUserById(id) {
   return userModel.findById(id);
-    
 }
 
-export async function addUser(user) {
+function addUser(user) {
   const userToAdd = new userModel(user);
-  const promise = await userToAdd.save();
+  const promise = userToAdd.save();
   return promise;
 }
 
@@ -42,21 +46,9 @@ function findUserByName(name) {
 function findUserByJob(job) {
   return userModel.find({ job: job });
 }
-function findUserByNameAndJob(userName, userJob) {
-  return userModel.find({name: userName , job: userJob })
-}
-export async function deleteUser(userId) {
-  try {
-  const result = await userModel.deleteOne({id: userId });
-  
-  if(result.deletedCount === 0) {
-    console.log("No user found with the given ID.");
-  } else {
-    console.log("User successfully deleted.");
-  }
-} catch (error) {
-  console.error("Error deleting user:", error);
-}
+
+function deleteUser(id) {
+  return userModel.findByIdAndDelete(id);
 }
 
 export default {
@@ -65,7 +57,6 @@ export default {
   findUserById,
   findUserByName,
   findUserByJob,
-  //findUserByNameAndJob,
-  fetchlist,
   deleteUser,
+
 };

@@ -35,9 +35,10 @@ function MyApp() {
     useEffect(() => {
         fetchUsers()
             .then((res) => {
-                if(res.status !== 201) {
+              //console.log(res.status);
+                if(res.status !== 200) {
                     
-                    throw Error("error loading");
+                    throw Error(`throw error response status ${res.status}`);
                 }
                 else {
                     console.log(res.status);
@@ -45,28 +46,34 @@ function MyApp() {
                 }
             })
             .then((json) => setCharacters(json["users_list"]))
-            .catch((error) => { console.log("error loading"); });
+            .catch((error) => { console.log(error); });
       }, [] );
 
     //--------------removeOneCharacter(index)------------------
     function removeOneCharacter(index) {
-        let id = characters.at(index).id;
+        let id = characters.at(index)._id;
         //console.log(id);
         const promise = fetch(`Http://localhost:8000/users/${id}`, {
             method: "DELETE"
         });
+        
         promise.then((res) => {
+          console.log(res.status);
             if(res.status === 204) {
-                const updated = characters.filter((character, i) => {
-                    return i !== index;
-                });
-                setCharacters(updated);
-                console.log(res.status);
+              
+              const updated = characters.filter((character, i) => {
+                return i !== index;
+              });
+              setCharacters(updated);
+              console.log(res.status);
             }
             else if(res.status === 404) {
-                console.log("Resource not found");
+              console.log(res)
             }
         })
+        .catch((error) => {
+          console.log("error");
+        });
         
     }
 

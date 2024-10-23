@@ -16,7 +16,7 @@ function Form(props) {
   function submitForm() {
     props.handleSubmit(person);
     setPerson({ name: "", job: "" });
-    <input type="button" value="Submit" onClick={submitForm} />
+    //<input type="button" value="Submit" onClick={submitForm} />
   }
   return (
     <form>
